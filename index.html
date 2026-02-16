@@ -1,519 +1,240 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absolut - Ombor Tizimi</title>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
-<style>
-/* =========================
-   GLOBAL STYLES
-========================= */
-:root{
- --primary1:#1e3c72;
- --primary2:#2a5298;
- --success:#27ae60;
- --warning:#f39c12;
- --danger:#e74c3c;
- --bg:#f5f5f5;
- --radius:14px;
-}
-
-*{box-sizing:border-box;font-family:Segoe UI, sans-serif;}
-body{margin:0;background:var(--bg);}
-
-header{
- background:linear-gradient(135deg,var(--primary1),var(--primary2));
- color:white;
- padding:15px;
- display:flex;
- justify-content:space-between;
- align-items:center;
- box-shadow:0 4px 12px rgba(0,0,0,.2);
-}
-
-h1{margin:0;font-size:20px;}
-
-button{
- border:none;
- padding:10px 15px;
- border-radius:10px;
- cursor:pointer;
- color:white;
- background:linear-gradient(135deg,var(--primary1),var(--primary2));
- transition:.3s;
- margin-right: 5px;
- margin-bottom: 5px;
-}
-button:hover{opacity:.85}
-
-.btn-success{background:var(--success)}
-.btn-warning{background:var(--warning)}
-.btn-danger{background:var(--danger)}
-.btn-dark{background:#34495e}
-
-.container{padding:15px;max-width:1200px;margin:auto;}
-
-.card{
- background:white;
- padding:15px;
- border-radius:var(--radius);
- box-shadow:0 4px 12px rgba(0,0,0,.1);
- margin-bottom:15px;
- animation:fadeIn .3s ease;
-}
-
-@keyframes fadeIn{
- from{opacity:0;transform:translateY(10px)}
- to{opacity:1;transform:none}
-}
-
-input,select,textarea{
- width:100%;
- padding:10px;
- border-radius:8px;
- border:1px solid #ddd;
- margin-bottom:10px;
-}
-
-table{width:100%;border-collapse:collapse;font-size:14px;}
-th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;}
-tr.low{background:#fff8e1}
-tr.order{background:#ffebee}
-
-.status-enough{color:var(--success);font-weight:bold;}
-.status-low{color:var(--warning);font-weight:bold;}
-.status-order{color:var(--danger);font-weight:bold;}
-
-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-.hidden{display:none}
-footer{text-align:center;padding:10px;font-size:12px;color:#777;}
-
-/* File upload hidden input */
-#fileInput { display: none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absolut ERP | Professional Ombor</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #4361ee; --secondary: #3f37c9; --success: #2ec4b6; --danger: #e71d36; --warning: #ff9f1c; --bg: #f8f9fd; --sidebar: #ffffff; --text: #2b2d42; --gray: #8d99ae; --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid #edf2f7; display: flex; flex-direction: column; padding: 20px; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .nav-link { padding: 12px 15px; border-radius: var(--radius); color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        .nav-link:hover { background: #f0f3ff; color: var(--primary); }
+        .nav-link.active { background: var(--primary); color: white; }
+        .main-content { flex: 1; overflow-y: auto; padding: 25px; }
+        .card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: var(--gray); border-bottom: 1px solid #eee; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        button { padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+        .hidden { display: none !important; }
+        #loginPage { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    </style>
 </head>
-
 <body>
 
-<header>
- <h1>Absolut - Ombor</h1>
- <div id="userInfo"></div>
-</header>
-
-<div class="container">
-
-<div id="loginPage" class="card">
- <h3>Tizimga kirish</h3>
- <input id="loginInput" placeholder="Login" autofocus>
- <input id="passwordInput" type="password" placeholder="Parol">
- <button onclick="login()">Kirish</button>
+<div id="loginPage">
+    <div class="card" style="width: 350px; text-align: center;">
+        <h2 style="color: var(--primary);">Absolut ERP</h2>
+        <input id="loginInp" placeholder="Login">
+        <input id="passInp" type="password" placeholder="Parol">
+        <button class="btn-main" style="width: 100%;" onclick="login()">Kirish</button>
+    </div>
 </div>
 
-<div id="app" class="hidden">
-
- <nav>
-  <button onclick="showPage('ombor')">📦 Ombor</button>
-  <button onclick="showPage('xodimlar')">👥 Xodimlar</button>
-  <button onclick="showPage('hisobot')">📊 Hisobotlar (Excel)</button>
-  <button onclick="showPage('sozlamalar')">⚙️ Sozlamalar</button>
-  <button onclick="logout()" class="btn-danger">Chiqish</button>
- </nav>
-
- <div id="omborPage"></div>
-
- <div id="xodimPage" class="hidden"></div>
- 
- <div id="hisobotPage" class="hidden"></div>
-
- <div id="sozlamalarPage" class="hidden"></div>
-
+<div id="sidebar" class="sidebar hidden">
+    <div class="logo"><i class="fas fa-cubes"></i> Absolut</div>
+    <div class="nav-link active" onclick="showPage('dash', this)"><i class="fas fa-home"></i> Dashboard</div>
+    <div class="nav-link" onclick="showPage('ombor', this)"><i class="fas fa-box"></i> Ombor</div>
+    <div id="navTabel" class="nav-link" onclick="showPage('tabel', this)"><i class="fas fa-calendar-check"></i> Tabel</div>
+    <div class="nav-link" onclick="showPage('history', this)"><i class="fas fa-history"></i> Operatsiyalar</div>
+    <div class="nav-link" onclick="showPage('reports', this)"><i class="fas fa-chart-bar"></i> Hisobotlar</div>
+    <div class="nav-link" onclick="showPage('settings', this)"><i class="fas fa-user-shield"></i> Admin Panel</div>
+    <button class="btn-main" onclick="location.reload()" style="margin-top: auto; background: var(--danger);">Chiqish</button>
 </div>
 
+<div id="main" class="main-content hidden">
+    <div id="dashPage">
+        <h3>Xush kelibsiz, <span id="uName"></span>!</h3>
+        <div style="display: flex; gap: 20px;">
+            <div class="card" style="flex:1"><h4>Mahsulotlar</h4><h2 id="st1">0</h2></div>
+            <div class="card" style="flex:1"><h4>Kam qolgan</h4><h2 id="st2" style="color:orange">0</h2></div>
+        </div>
+    </div>
+
+    <div id="omborPage" class="hidden">
+        <div class="card">
+            <div style="display:flex; justify-content: space-between; margin-bottom: 15px;">
+                <h3>Ombor qoldig'i</h3>
+                <button class="btn-main" onclick="addProduct()">+ Mahsulot</button>
+            </div>
+            <div id="invTable"></div>
+        </div>
+    </div>
+
+    <div id="tabelPage" class="hidden">
+        <div class="card">
+            <h3>Davomat (Tabel)</h3>
+            <p id="todayDate"></p>
+            <div id="tabelList"></div>
+        </div>
+    </div>
+
+    <div id="historyPage" class="hidden">
+        <div class="card">
+            <h3>Ombor operatsiyalari tarixi</h3>
+            <div id="histTable"></div>
+        </div>
+    </div>
+
+    <div id="reportsPage" class="hidden">
+        <div class="card">
+            <h3>Oylik davomat hisoboti</h3>
+            <div id="attReportTable"></div>
+        </div>
+        <button class="btn-main" onclick="exportToExcel()">Excelga yuklash</button>
+    </div>
+
+    <div id="settingsPage" class="hidden">
+        <div class="card" id="adminOnly">
+            <h3>Foydalanuvchilar va Huquqlar</h3>
+            <button class="btn-main" onclick="addUser()">+ Yangi foydalanuvchi</button>
+            <div id="userTable"></div>
+        </div>
+    </div>
 </div>
-
-<footer>© Absolut 2026 | GitHub Host Version</footer>
-
-<input type="file" id="fileInput" accept=".json" onchange="restoreData(this)">
 
 <script>
-
-/* =========================
-   DATA STORAGE
-========================= */
-const STORAGE_KEY="absolut_local_v2";
-
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
- products:[],
- transactions:[], // Kirim-Chiqim tarixi
- employees:[],
- users:[
-  {login:"admin",password:"admin",role:"admin",fullName:"Administrator"},
-  {login:"sklad",password:"123",role:"kladovshik",fullName:"Omborchi"}
- ]
+let data = JSON.parse(localStorage.getItem("abs_erp_v4")) || {
+    products: [],
+    transactions: [],
+    employees: [],
+    attendance: [], // {date, empId, status: 'p'/'a'}
+    users: [{id: 1, login: "admin", pass: "admin", role: "admin", name: "Admin", canTabel: true}]
 };
 
-let currentUser=null;
+let user = null;
 
-/* =========================
-   CORE FUNCTIONS
-========================= */
+function save() { localStorage.setItem("abs_erp_v4", JSON.stringify(data)); render(); }
 
-function save(){
- localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+function login() {
+    let l = document.getElementById("loginInp").value;
+    let p = document.getElementById("passInp").value;
+    user = data.users.find(u => u.login === l && u.pass === p);
+    if(!user) return alert("Xato!");
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("sidebar").classList.remove("hidden");
+    document.getElementById("main").classList.remove("hidden");
+    document.getElementById("uName").innerText = user.name;
+    
+    // Check Tabel Permission
+    if(!user.canTabel && user.role !== 'admin') document.getElementById("navTabel").classList.add("hidden");
+    if(user.role !== 'admin') document.getElementById("adminOnly").classList.add("hidden");
+    
+    render();
 }
 
-function formatNumber(n){
- return n ? n.toLocaleString("ru-RU") : "0";
+function showPage(p, el) {
+    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    ['dash','ombor','tabel','history','reports','settings'].forEach(id => document.getElementById(id+'Page').classList.add('hidden'));
+    document.getElementById(p+'Page').classList.remove('hidden');
+    render();
 }
 
-function formatDate(isoStr){
- if(!isoStr) return "";
- return new Date(isoStr).toLocaleString("uz-UZ");
+function render() {
+    // Stats
+    document.getElementById("st1").innerText = data.products.length;
+    document.getElementById("st2").innerText = data.products.filter(p => p.qty < 5).length;
+
+    // Inventory
+    let invH = `<table><tr><th>Nomi</th><th>Miqdor</th><th>Amal</th></tr>`;
+    data.products.forEach(p => {
+        invH += `<tr><td>${p.name}</td><td><b>${p.qty} ${p.unit}</b></td>
+        <td><button onclick="op(${p.id},'in')">+</button> <button onclick="op(${p.id},'out')">-</button></td></tr>`;
+    });
+    document.getElementById("invTable").innerHTML = invH + `</table>`;
+
+    // History (Filter for Skladovshik)
+    let histH = `<table><tr><th>Vaqt</th><th>Mahsulot</th><th>Amal</th><th>Kim</th></tr>`;
+    let filteredHist = user.role === 'admin' ? data.transactions : data.transactions.filter(t => t.userId === user.id);
+    filteredHist.slice().reverse().forEach(t => {
+        histH += `<tr><td><small>${t.date.split('T')[0]}</small></td><td>${t.pName}</td>
+        <td style="color:${t.type==='in'?'green':'red'}">${t.type==='in'?'Kirim':'Chiqim'} (${t.qty})</td><td>${t.uName}</td></tr>`;
+    });
+    document.getElementById("histTable").innerHTML = histH + `</table>`;
+
+    // Tabel
+    document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
+    let tabH = `<table><tr><th>Xodim</th><th>Holat</th></tr>`;
+    data.employees.forEach(e => {
+        let att = data.attendance.find(a => a.empId === e.id && a.date === new Date().toISOString().split('T')[0]);
+        tabH += `<tr><td>${e.name}</td><td>
+            <button class="${att?.status==='p'?'btn-main':''}" onclick="mark(${e.id},'p')">Keldi</button>
+            <button style="background:red; color:white;" class="${att?.status==='a'?'btn-main':''}" onclick="mark(${e.id},'a')">Kelmad</button>
+        </td></tr>`;
+    });
+    document.getElementById("tabelList").innerHTML = tabH + `</table>`;
+
+    // Attendance Report
+    let repH = `<table><tr><th>Xodim</th><th>Keldi (Kun)</th><th>Kelmagan</th></tr>`;
+    data.employees.forEach(e => {
+        let pCount = data.attendance.filter(a => a.empId === e.id && a.status === 'p').length;
+        let aCount = data.attendance.filter(a => a.empId === e.id && a.status === 'a').length;
+        repH += `<tr><td>${e.name}</td><td><b style="color:green">${pCount}</b></td><td><b style="color:red">${aCount}</b></td></tr>`;
+    });
+    document.getElementById("attReportTable").innerHTML = repH + `</table>`;
+
+    // Users (Admin Only)
+    if(user.role === 'admin') {
+        let usH = `<table><tr><th>Login</th><th>F.I.SH</th><th>Tabelga ruxsat</th></tr>`;
+        data.users.forEach(u => {
+            usH += `<tr><td>${u.login}</td><td>${u.name}</td>
+            <td><input type="checkbox" ${u.canTabel?'checked':''} onchange="toggleTabel(${u.id})"></td></tr>`;
+        });
+        document.getElementById("userTable").innerHTML = usH + `</table>`;
+    }
 }
 
-function notify(msg){
- alert(msg);
-}
-
-/* =========================
-   AUTH
-========================= */
-function login(){
- const login=document.getElementById("loginInput").value;
- const pass=document.getElementById("passwordInput").value;
- const user=data.users.find(u=>u.login===login && u.password===pass);
- if(!user) return notify("Login yoki parol noto‘g‘ri");
- 
- currentUser=user;
- document.getElementById("loginPage").classList.add("hidden");
- document.getElementById("app").classList.remove("hidden");
- document.getElementById("userInfo").innerText=user.fullName;
- renderAll();
-}
-
-function logout(){
- currentUser=null;
- location.reload();
-}
-
-function showPage(p){
- ['omborPage','xodimPage','hisobotPage','sozlamalarPage'].forEach(id=>{
-  document.getElementById(id).classList.add("hidden");
- });
- document.getElementById(p+"Page").classList.remove("hidden");
-}
-
-/* =========================
-   OMBOR (WAREHOUSE)
-========================= */
-function renderOmbor(){
- const page=document.getElementById("omborPage");
- page.innerHTML="";
- 
- const card=document.createElement("div");
- card.className="card";
- 
- let html = `
- <h3>Mahsulotlar Ro‘yxati</h3>
- <button onclick="addProduct()">+ Mahsulot Qo‘shish</button>
- <table>
-  <thead>
-  <tr>
-   <th>Nomi</th>
-   <th>Qoldiq</th>
-   <th>Narx</th>
-   <th>Status</th>
-   <th>Amallar</th>
-  </tr>
-  </thead>
-  <tbody>
- `;
-
- data.products.forEach(p=>{
-  const statusClass=p.status==="low"?"status-low":p.status==="order"?"status-order":"status-enough";
-  const rowClass=p.status==="low"?"low":p.status==="order"?"order":"";
-  
-  html += `
-   <tr class="${rowClass}">
-    <td><b>${p.name}</b><br><small>${p.category||""}</small></td>
-    <td>${formatNumber(p.quantity)} ${p.unit}</td>
-    <td>${formatNumber(p.price)} so'm</td>
-    <td class="${statusClass}">${getStatusLabel(p.status)}</td>
-    <td>
-     <button onclick="doTransaction(${p.id},'in')" class="btn-success" title="Kirim">+</button>
-     <button onclick="doTransaction(${p.id},'out')" class="btn-warning" title="Chiqim">-</button>
-     ${currentUser.role==='admin' ? `<button onclick="deleteProduct(${p.id})" class="btn-danger">x</button>` : ''}
-    </td>
-   </tr>
-  `;
- });
- 
- html += `</tbody></table>`;
- card.innerHTML = html;
- page.appendChild(card);
-}
-
-function getStatusLabel(s){
- if(s==="enough") return "✅ Yetarli";
- if(s==="low") return "⚠️ Kam";
- if(s==="order") return "❗ Tugadi";
- return s;
-}
-
-function addProduct(){
- const name=prompt("Mahsulot nomi:");
- if(!name) return;
- const quantity=parseFloat(prompt("Boshlang‘ich qoldiq:",0));
- const unit=prompt("O‘lchov birligi (kg, dona, litr):","dona");
- const price=parseFloat(prompt("Narxi (so‘m):",0));
- const minQty=parseFloat(prompt("Minimal limit (ogohlantirish uchun):",10));
- 
- data.products.push({
-  id: Date.now(),
-  name, quantity, unit, price, minQuantity: minQty,
-  status: quantity<=minQty ? (quantity==0?"order":"low") : "enough",
-  category: "Umumiy",
-  createdBy: currentUser.login
- });
- save();
- renderOmbor();
-}
-
-function deleteProduct(id){
- if(!confirm("O‘chirishni tasdiqlaysizmi?")) return;
- data.products = data.products.filter(p=>p.id!==id);
- save();
- renderOmbor();
-}
-
-function doTransaction(id, type){
- const p = data.products.find(x=>x.id===id);
- const qty = parseFloat(prompt(`${type==='in'?'Kirim':'Chiqim'} miqdorini kiriting:`,0));
- if(!qty || qty<=0) return;
-
- if(type==='in'){
-  p.quantity += qty;
- } else {
-  if(p.quantity < qty) return notify("Omborda buncha mahsulot yo‘q!");
-  p.quantity -= qty;
- }
-
- // Update status
- p.status = p.quantity===0 ? "order" : (p.quantity<=p.minQuantity ? "low" : "enough");
-
- // Log transaction
- data.transactions.push({
-  id: Date.now(),
-  productName: p.name,
-  type: type==='in' ? "Kirim" : "Chiqim",
-  quantity: qty,
-  unit: p.unit,
-  date: new Date().toISOString(),
-  user: currentUser.login
- });
-
- save();
- renderOmbor();
-}
-
-/* =========================
-   XODIMLAR (EMPLOYEES)
-========================= */
-function renderXodimlar(){
- const page=document.getElementById("xodimPage");
- page.innerHTML = `
-  <div class="card">
-   <h3>Xodimlar</h3>
-   <button onclick="addEmployee()">+ Xodim Qo‘shish</button>
-   <table>
-    <tr><th>Ism</th><th>Lavozim</th><th>Tel</th></tr>
-    ${data.employees.map(e=>`
-     <tr>
-      <td>${e.name}</td>
-      <td>${e.position}</td>
-      <td>${e.phone}</td>
-     </tr>
-    `).join("")}
-   </table>
-  </div>
- `;
-}
-
-function addEmployee(){
- const name=prompt("Ismi:");
- const position=prompt("Lavozimi:");
- const phone=prompt("Telefon:");
- if(name) {
-  data.employees.push({id:Date.now(), name, position, phone});
-  save();
-  renderXodimlar();
- }
-}
-
-/* =========================
-   HISOBOTLAR & EXCEL (REPORTS)
-========================= */
-function renderHisobot(){
- const page=document.getElementById("hisobotPage");
- page.innerHTML = `
-  <div class="card">
-   <h3>Excel Hisobotlar</h3>
-   <p>Barcha ma'lumotlarni Excel formatida yuklab olish.</p>
-   <button onclick="exportToExcel()" class="btn-success">📥 Excelga Yuklash (.xlsx)</button>
-  </div>
-  
-  <div class="card">
-   <h3>Oxirgi 10 ta operatsiya</h3>
-   <table>
-    <tr><th>Vaqt</th><th>Mahsulot</th><th>Amal</th><th>Miqdor</th><th>Kim</th></tr>
-    ${data.transactions.slice().reverse().slice(0,10).map(t=>`
-     <tr>
-      <td>${formatDate(t.date)}</td>
-      <td>${t.productName}</td>
-      <td style="color:${t.type==='Kirim'?'green':'red'}">${t.type}</td>
-      <td>${formatNumber(t.quantity)} ${t.unit}</td>
-      <td>${t.user}</td>
-     </tr>
-    `).join("")}
-   </table>
-  </div>
- `;
-}
-
-function exportToExcel(){
- // 1. Mahsulotlar varag'i
- const productsData = data.products.map(p => ({
-  "ID": p.id,
-  "Nomi": p.name,
-  "Qoldiq": p.quantity,
-  "Birlik": p.unit,
-  "Narx": p.price,
-  "Status": getStatusLabel(p.status)
- }));
-
- // 2. Tranzaksiyalar varag'i
- const transData = data.transactions.map(t => ({
-  "Vaqt": formatDate(t.date),
-  "Mahsulot": t.productName,
-  "Amal": t.type,
-  "Miqdor": t.quantity,
-  "Xodim": t.user
- }));
-
- // 3. Create Workbook
- const wb = XLSX.utils.book_new();
- 
- const wsProducts = XLSX.utils.json_to_sheet(productsData);
- XLSX.utils.book_append_sheet(wb, wsProducts, "Ombor Qoldiq");
-
- const wsTrans = XLSX.utils.json_to_sheet(transData);
- XLSX.utils.book_append_sheet(wb, wsTrans, "Kirim-Chiqim Tarixi");
-
- // 4. Download
- XLSX.writeFile(wb, "Absolut_Hisobot_" + new Date().toISOString().slice(0,10) + ".xlsx");
-}
-
-/* =========================
-   SOZLAMALAR (SETTINGS & BACKUP)
-========================= */
-function renderSozlamalar(){
- const page=document.getElementById("sozlamalarPage");
- page.innerHTML = `
-  <div class="card">
-   <h3>Ma'lumotlar Bazasi (Backup)</h3>
-   <p style="color:#777;font-size:12px">
-    Diqqat! Sayt GitHub da turgani uchun ma'lumotlar faqat sizning brauzeringizda saqlanadi. 
-    Boshqa qurilmaga o'tish yoki ma'lumotni yo'qotmaslik uchun tez-tez "Backup Saqlash" qiling.
-   </p>
-   <button onclick="backupData()" class="btn-dark">⬇️ Bazani Saqlash (JSON)</button>
-   <button onclick="document.getElementById('fileInput').click()" class="btn-warning">⬆️ Bazani Tiklash</button>
-   <br><br>
-   <button onclick="clearData()" class="btn-danger">⚠️ Tozalash (Reset)</button>
-  </div>
- `;
- 
- if(currentUser.role==='admin'){
-  const userDiv = document.createElement("div");
-  userDiv.className="card";
-  userDiv.innerHTML = `
-   <h3>Foydalanuvchilar boshqaruvi</h3>
-   <button onclick="addUser()">+ Foydalanuvchi Qo'shish</button>
-   <ul>
-    ${data.users.map(u=>`<li>${u.login} (${u.role})</li>`).join("")}
-   </ul>
-  `;
-  page.appendChild(userDiv);
- }
-}
-
-function backupData(){
- const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
- const downloadAnchorNode = document.createElement('a');
- downloadAnchorNode.setAttribute("href", dataStr);
- downloadAnchorNode.setAttribute("download", "absolut_backup_" + new Date().toISOString().slice(0,10) + ".json");
- document.body.appendChild(downloadAnchorNode);
- downloadAnchorNode.click();
- downloadAnchorNode.remove();
-}
-
-function restoreData(input){
- const file = input.files[0];
- if(!file) return;
- const reader = new FileReader();
- reader.onload = function(e){
-  try {
-   const json = JSON.parse(e.target.result);
-   if(json.products && json.users) {
-    data = json;
+function op(id, type) {
+    let p = data.products.find(x => x.id === id);
+    let q = parseFloat(prompt("Miqdor:"));
+    if(!q) return;
+    if(type==='in') p.qty += q; else p.qty -= q;
+    data.transactions.push({id: Date.now(), userId: user.id, uName: user.name, pName: p.name, type, qty: q, date: new Date().toISOString()});
     save();
-    alert("Baza muvaffaqiyatli tiklandi!");
-    location.reload();
-   } else {
-    alert("Fayl noto‘g‘ri formatda!");
-   }
-  } catch(err){
-   alert("Xatolik: " + err);
-  }
- };
- reader.readAsText(file);
 }
 
-function clearData(){
- if(confirm("Butun tizim tozalanadi! Ishonchingiz komilmi?")){
-  localStorage.removeItem(STORAGE_KEY);
-  location.reload();
- }
+function mark(empId, status) {
+    let today = new Date().toISOString().split('T')[0];
+    data.attendance = data.attendance.filter(a => !(a.empId === empId && a.date === today));
+    data.attendance.push({date: today, empId, status});
+    save();
 }
 
-function addUser(){
- const login=prompt("Yangi login:");
- const password=prompt("Parol:");
- const role=prompt("Rol (admin/kladovshik):","kladovshik");
- if(login && password){
-  data.users.push({login,password,role,fullName:login});
-  save();
-  renderSozlamalar();
- }
+function addProduct() {
+    let n = prompt("Nomi:"); if(n) data.products.push({id: Date.now(), name: n, qty: 0, unit: 'dona'});
+    save();
 }
 
-/* =========================
-   INIT
-========================= */
-function renderAll(){
- renderOmbor();
- renderXodimlar();
- renderHisobot();
- renderSozlamalar();
+function addUser() {
+    let l = prompt("Login:");
+    let p = prompt("Parol:");
+    let n = prompt("Ism:");
+    if(l && p) data.users.push({id: Date.now(), login: l, pass: p, name: n, role: 'sklad', canTabel: false});
+    save();
 }
 
-// Check auth on load
-if(data.users.length === 0){
- // Init default user if empty
- data.users.push({login:"admin",password:"admin",role:"admin",fullName:"Admin"});
+function toggleTabel(id) {
+    let u = data.users.find(x => x.id === id);
+    u.canTabel = !u.canTabel;
+    save();
 }
 
+// Pre-fill some employees if empty
+if(data.employees.length === 0) {
+    data.employees = [{id:101, name: "Xodim 1"}, {id:102, name: "Xodim 2"}];
+    save();
+}
 </script>
 </body>
 </html>
