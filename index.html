@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absolut ERP Pro v5</title>
+    <title>Absolut ERP Pro v6 | Full Management</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -19,7 +19,7 @@
         .nav-link.active { background: var(--primary); color: white; }
         
         /* Main */
-        .main-content { flex: 1; overflow-y: auto; padding: 25px; position: relative; }
+        .main-content { flex: 1; overflow-y: auto; padding: 25px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
         
@@ -29,323 +29,258 @@
         td { padding: 14px; border-bottom: 1px solid #f4f7fe; font-size: 14px; }
         tr:hover { background: #fcfdfe; }
         
-        /* Forms */
+        /* UI Elements */
         input, select { padding: 11px; border: 1px solid #e0e4ec; border-radius: 8px; width: 100%; margin-bottom: 12px; outline: none; }
-        input:focus { border-color: var(--primary); }
-        button { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        button { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-main { background: var(--primary); color: white; }
-        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-edit { background: #eef2ff; color: var(--primary); }
         .btn-danger { background: #fff5f5; color: var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
-        
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; }
-        .badge-in { background: #e6fffa; color: #2ec4b6; }
-        .badge-out { background: #fff5f5; color: #e71d36; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; }
 
         .hidden { display: none !important; }
         #loginPage { position: fixed; inset: 0; background: #f4f7fe; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        
-        /* Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
 <div id="loginPage">
-    <div class="card" style="width: 380px; padding: 40px; text-align: center;">
-        <div class="logo" style="justify-content: center; margin-bottom: 10px;"><i class="fas fa-shield-alt"></i> Absolut ERP</div>
-        <p style="color: var(--gray); margin-bottom: 30px;">Tizimga kirish</p>
+    <div class="card" style="width: 350px; text-align: center;">
+        <h2 style="color:var(--primary)">Absolut ERP</h2>
         <input id="loginInp" placeholder="Login">
         <input id="passInp" type="password" placeholder="Parol">
-        <button class="btn-main" style="width: 100%;" onclick="login()">KIRISH</button>
+        <button class="btn-main" style="width: 100%;" onclick="login()">Kirish</button>
     </div>
 </div>
 
 <div id="sidebar" class="sidebar hidden">
     <div class="logo"><i class="fas fa-warehouse"></i> Absolut</div>
-    <div class="nav-link active" onclick="showPage('ombor', this)"><i class="fas fa-boxes"></i> Ombor (Sklad)</div>
-    <div id="navTabel" class="nav-link" onclick="showPage('tabel', this)"><i class="fas fa-user-check"></i> Davomat (Tabel)</div>
-    <div class="nav-link" onclick="showPage('history', this)"><i class="fas fa-exchange-alt"></i> Sklad Tarixi</div>
-    <div class="nav-link" onclick="showPage('reports', this)"><i class="fas fa-chart-line"></i> Hisobotlar</div>
-    <div class="nav-link" onclick="showPage('settings', this)"><i class="fas fa-users-cog"></i> Admin Panel</div>
-    <div style="margin-top: auto; padding-top: 20px;">
-        <div class="badge" id="uRole" style="display:block; text-align:center; margin-bottom:10px; background:#eee"></div>
-        <button class="btn-danger" style="width: 100%;" onclick="location.reload()">Chiqish</button>
-    </div>
+    <div class="nav-link active" onclick="showPage('ombor', this)"><i class="fas fa-boxes"></i> Ombor</div>
+    <div id="navTabel" class="nav-link" onclick="showPage('tabel', this)"><i class="fas fa-user-check"></i> Davomat</div>
+    <div class="nav-link" onclick="showPage('history', this)"><i class="fas fa-history"></i> Tarix</div>
+    <div class="nav-link" onclick="showPage('reports', this)"><i class="fas fa-chart-pie"></i> Hisobotlar</div>
+    <div class="nav-link" onclick="showPage('admin', this)"><i class="fas fa-cog"></i> Sozlamalar</div>
+    <button class="btn-danger" style="margin-top:auto" onclick="location.reload()">Chiqish</button>
 </div>
 
 <div id="main" class="main-content hidden">
     
     <div id="omborPage">
-        <div class="header">
-            <h2>Mahsulotlar Ombori</h2>
-            <button class="btn-main" onclick="openPModal()"><i class="fas fa-plus"></i> Mahsulot qo'shish</button>
-        </div>
-        <div class="card">
-            <input type="text" id="pSearch" placeholder="Qidirish..." onkeyup="renderInventory()">
-            <div id="invTable"></div>
-        </div>
+        <div class="header"><h2>Mahsulotlar</h2> <button class="btn-main" onclick="openProdModal()">+ Yangi Mahsulot</button></div>
+        <div class="card"><div id="invTable"></div></div>
     </div>
 
     <div id="tabelPage" class="hidden">
-        <div class="header"><h2>Xodimlar Davomati</h2></div>
-        <div class="card">
-            <h3>Bugun: <span id="todayDate"></span></h3>
-            <div id="tabelList"></div>
-        </div>
+        <div class="header"><h2>Davomat (Tabel)</h2></div>
+        <div class="card"><div id="tabelList"></div></div>
     </div>
 
     <div id="historyPage" class="hidden">
-        <div class="header"><h2>Sklad Operatsiyalari Tarixi</h2></div>
-        <div class="card">
-            <div id="histTable"></div>
-        </div>
+        <div class="header"><h2>Operatsiyalar Tarixi</h2></div>
+        <div class="card"><div id="histTable"></div></div>
     </div>
 
     <div id="reportsPage" class="hidden">
-        <div class="header"><h2>Oylik Hisobotlar</h2></div>
-        <div class="card">
-            <h3>Davomat Statistikasi (Joriy oy)</h3>
-            <div id="attReportTable"></div>
-        </div>
-        <button class="btn-main" onclick="exportToExcel()"><i class="fas fa-file-download"></i> Excel (.xlsx) yuklash</button>
+        <div class="header"><h2>Hisobotlar</h2></div>
+        <div class="card"><h3>Davomat statistikasi</h3><div id="attReportTable"></div></div>
+        <button class="btn-main" onclick="exportToExcel()">Excelga yuklash</button>
     </div>
 
-    <div id="settingsPage" class="hidden">
+    <div id="adminPage" class="hidden">
         <div class="card">
-            <h3>Foydalanuvchilarni boshqarish</h3>
-            <button class="btn-main" onclick="addUser()">+ Yangi foydalanuvchi</button>
+            <h3>Tizim foydalanuvchilari</h3>
+            <button class="btn-main" onclick="openUserModal()">+ Foydalanuvchi</button>
             <div id="userTable"></div>
         </div>
         <div class="card">
-            <h3>Xodimlarni boshqarish</h3>
-            <button class="btn-main" onclick="addEmployee()">+ Yangi xodim</button>
-            <div id="empSettingsTable"></div>
+            <h3>Ishchi xodimlar</h3>
+            <button class="btn-main" onclick="openEmpModal()">+ Xodim qo'shish</button>
+            <div id="empTable"></div>
         </div>
     </div>
 </div>
 
-<div id="pModal" class="modal hidden">
-    <div class="card" style="width: 400px;">
-        <h3 id="mTitle">Yangi Mahsulot</h3>
-        <input id="mpName" placeholder="Mahsulot nomi">
-        <input id="mpCat" placeholder="Kategoriya (masalan: Qurilish)">
-        <input id="mpUnit" placeholder="O'lchov birligi (dona, kg)">
-        <input id="mpPrice" type="number" placeholder="Narxi">
-        <div style="display:flex; gap:10px;">
-            <button class="btn-main" onclick="saveProduct()">Saqlash</button>
-            <button onclick="closePModal()">Yopish</button>
-        </div>
-    </div>
-</div>
-
-<div id="itemHistModal" class="modal hidden">
-    <div class="card" style="width: 600px; max-height: 80vh; overflow-y: auto;">
-        <h3 id="ihTitle">Mahsulot tarixi</h3>
-        <div id="ihContent"></div>
-        <button onclick="document.getElementById('itemHistModal').classList.add('hidden')">Yopish</button>
-    </div>
+<div id="modal" class="modal hidden">
+    <div class="card" id="modalContent" style="width: 400px;"></div>
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("abs_erp_v5")) || {
+let data = JSON.parse(localStorage.getItem("abs_erp_v6")) || {
     products: [],
     transactions: [],
     employees: [],
     attendance: [],
-    users: [{id: 1, login: "admin", pass: "admin", role: "admin", name: "Administrator", canTabel: true}]
+    users: [{id: 1, login: "admin", pass: "admin", role: "admin", name: "Asosiy Admin", canTabel: true}]
 };
 
 let user = null;
-
-function save() { localStorage.setItem("abs_erp_v5", JSON.stringify(data)); render(); }
+const save = () => { localStorage.setItem("abs_erp_v6", JSON.stringify(data)); render(); };
 
 function login() {
     let l = document.getElementById("loginInp").value;
     let p = document.getElementById("passInp").value;
     user = data.users.find(u => u.login === l && u.pass === p);
-    if(!user) return alert("Login yoki parol xato!");
-    
+    if(!user) return alert("Xato!");
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("sidebar").classList.remove("hidden");
     document.getElementById("main").classList.remove("hidden");
-    document.getElementById("uRole").innerText = user.name + " (" + user.role + ")";
-    
     if(!user.canTabel && user.role !== 'admin') document.getElementById("navTabel").classList.add("hidden");
-    if(user.role !== 'admin') {
-        document.querySelectorAll('.nav-link')[4].classList.add('hidden'); // Hide settings
-    }
     render();
 }
 
 function showPage(p, el) {
     document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
-    ['ombor','tabel','history','reports','settings'].forEach(id => document.getElementById(id+'Page').classList.add('hidden'));
+    ['ombor','tabel','history','reports','admin'].forEach(id => document.getElementById(id+'Page').classList.add('hidden'));
     document.getElementById(p+'Page').classList.remove('hidden');
     render();
 }
 
 function render() {
-    renderInventory();
-    renderHistory();
-    renderTabel();
-    renderAttendanceReport();
-    if(user.role === 'admin') renderAdmin();
-}
-
-function renderInventory() {
-    let search = document.getElementById("pSearch").value.toLowerCase();
-    let html = `<table><tr><th>Kategoriya</th><th>Mahsulot</th><th>Qoldiq</th><th>Narx</th><th>Amal</th></tr>`;
-    data.products.filter(p => p.name.toLowerCase().includes(search)).forEach(p => {
-        html += `<tr>
-            <td><small>${p.cat || 'Umumiy'}</small></td>
-            <td onclick="showItemHistory(${p.id})" style="cursor:pointer; color:var(--primary)"><b>${p.name}</b></td>
-            <td><b style="color:${p.qty < 5 ? 'red':'inherit'}">${p.qty} ${p.unit}</b></td>
-            <td>${p.price.toLocaleString()}</td>
-            <td>
-                <button class="btn-main" onclick="op(${p.id},'in')"><i class="fas fa-arrow-down"></i></button>
-                <button class="btn-main" style="background:var(--warning)" onclick="op(${p.id},'out')"><i class="fas fa-arrow-up"></i></button>
-                ${user.role==='admin' ? `<button class="btn-danger" onclick="deleteProd(${p.id})"><i class="fas fa-trash"></i></button>` : ''}
-            </td>
-        </tr>`;
-    });
-    document.getElementById("invTable").innerHTML = html + `</table>`;
-}
-
-function renderHistory() {
-    let html = `<table><tr><th>Sana</th><th>Mahsulot</th><th>Turi</th><th>Miqdor</th><th>Kim</th></tr>`;
-    let list = user.role === 'admin' ? data.transactions : data.transactions.filter(t => t.userId === user.id);
-    list.slice().reverse().slice(0, 50).forEach(t => {
-        html += `<tr>
-            <td>${t.date.split('T')[0]}</td>
-            <td>${t.pName}</td>
-            <td><span class="badge badge-${t.type}">${t.type==='in'?'Kirim':'Chiqim'}</span></td>
-            <td>${t.qty}</td>
-            <td><small>${t.uName}</small></td>
-        </tr>`;
-    });
-    document.getElementById("histTable").innerHTML = html + `</table>`;
-}
-
-function showItemHistory(pid) {
-    let p = data.products.find(x => x.id === pid);
-    let logs = data.transactions.filter(t => t.pId === pid);
-    document.getElementById("ihTitle").innerText = p.name + " - Harakatlar tarixi";
-    let html = `<table><tr><th>Sana</th><th>Amal</th><th>Miqdor</th><th>Xodim</th></tr>`;
-    logs.slice().reverse().forEach(l => {
-        html += `<tr><td>${l.date.split('T')[0]}</td><td>${l.type==='in'?'Kirim':'Chiqim'}</td><td>${l.qty}</td><td>${l.uName}</td></tr>`;
-    });
-    document.getElementById("ihContent").innerHTML = html + `</table>`;
-    document.getElementById("itemHistModal").classList.remove("hidden");
-}
-
-function renderTabel() {
-    document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
-    let today = new Date().toISOString().split('T')[0];
-    let html = `<table><tr><th>Xodim</th><th>Lavozim</th><th>Holat</th></tr>`;
-    data.employees.forEach(e => {
-        let att = data.attendance.find(a => a.empId === e.id && a.date === today);
-        html += `<tr><td>${e.name}</td><td><small>${e.pos}</small></td><td>
-            <button style="background:${att?.status==='p'?'#2ec4b6':'#eee'}" onclick="mark(${e.id},'p')">Keldi</button>
-            <button style="background:${att?.status==='a'?'#e71d36':'#eee'}; color:${att?.status==='a'?'white':'black'}" onclick="mark(${e.id},'a')">Kelmadi</button>
+    // Inventory
+    let invH = `<table><tr><th>Nomi</th><th>Kategoriya</th><th>Qoldiq</th><th>Amal</th></tr>`;
+    data.products.forEach(p => {
+        invH += `<tr><td><b>${p.name}</b></td><td>${p.cat}</td><td>${p.qty} ${p.unit}</td><td>
+            <button class="btn-main" onclick="op(${p.id},'in')">+</button>
+            <button class="btn-main" onclick="op(${p.id},'out')">-</button>
+            <button class="btn-edit" onclick="openProdModal(${p.id})"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="deleteObj('products', ${p.id})"><i class="fas fa-trash"></i></button>
         </td></tr>`;
     });
-    document.getElementById("tabelList").innerHTML = html + `</table>`;
-}
+    document.getElementById("invTable").innerHTML = invH + `</table>`;
 
-function renderAttendanceReport() {
-    let html = `<table><tr><th>Xodim</th><th>Keldi</th><th>Kelmagan</th><th>%</th></tr>`;
-    data.employees.forEach(e => {
-        let p = data.attendance.filter(a => a.empId === e.id && a.status === 'p').length;
-        let a = data.attendance.filter(a => a.empId === e.id && a.status === 'a').length;
-        let total = p + a;
-        let perc = total > 0 ? Math.round((p/total)*100) : 0;
-        html += `<tr><td>${e.name}</td><td style="color:green"><b>${p}</b></td><td style="color:red"><b>${a}</b></td><td>${perc}%</td></tr>`;
+    // History
+    let histH = `<table><tr><th>Sana</th><th>Mahsulot</th><th>Amal</th><th>Xodim</th></tr>`;
+    data.transactions.slice().reverse().slice(0,20).forEach(t => {
+        histH += `<tr><td><small>${t.date.split('T')[0]}</small></td><td>${t.pName}</td><td>${t.type==='in'?'Kirim':'Chiqim'} (${t.qty})</td><td>${t.uName}</td></tr>`;
     });
-    document.getElementById("attReportTable").innerHTML = html + `</table>`;
-}
+    document.getElementById("histTable").innerHTML = histH + `</table>`;
 
-function renderAdmin() {
-    let uH = `<table><tr><th>Login</th><th>Roli</th><th>Tabel</th><th>Amal</th></tr>`;
+    // Tabel
+    let tabH = `<table><tr><th>Xodim</th><th>Lavozim</th><th>Holat</th></tr>`;
+    data.employees.forEach(e => {
+        let att = data.attendance.find(a => a.empId === e.id && a.date === new Date().toISOString().split('T')[0]);
+        tabH += `<tr><td>${e.name}</td><td>${e.pos}</td><td>
+            <button style="background:${att?.status==='p'?'#2ec4b6':'#eee'}" onclick="mark(${e.id},'p')">Keldi</button>
+            <button style="background:${att?.status==='a'?'#e71d36':'#eee'}" onclick="mark(${e.id},'a')">Yo'q</button>
+        </td></tr>`;
+    });
+    document.getElementById("tabelList").innerHTML = tabH + `</table>`;
+
+    // Reports
+    let repH = `<table><tr><th>Xodim</th><th>Keldi</th><th>Kelmadi</th></tr>`;
+    data.employees.forEach(e => {
+        repH += `<tr><td>${e.name}</td><td style="color:green">${data.attendance.filter(a=>a.empId===e.id && a.status==='p').length}</td><td style="color:red">${data.attendance.filter(a=>a.empId===e.id && a.status==='a').length}</td></tr>`;
+    });
+    document.getElementById("attReportTable").innerHTML = repH + `</table>`;
+
+    // Admin: Users & Employees
+    let userH = `<table><tr><th>Login</th><th>Foydalanuvchi</th><th>Amal</th></tr>`;
     data.users.forEach(u => {
-        uH += `<tr><td>${u.login}</td><td>${u.role}</td>
-        <td><input type="checkbox" ${u.canTabel?'checked':''} onchange="toggleTabel(${u.id})" style="width:20px"></td>
-        <td><button class="btn-danger" onclick="deleteUser(${u.id})">X</button></td></tr>`;
+        userH += `<tr><td>${u.login}</td><td>${u.name}</td><td>
+            <button class="btn-edit" onclick="openUserModal(${u.id})"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="deleteObj('users', ${u.id})">X</button>
+        </td></tr>`;
     });
-    document.getElementById("userTable").innerHTML = uH + `</table>`;
+    document.getElementById("userTable").innerHTML = userH + `</table>`;
 
-    let eH = `<table><tr><th>Ism</th><th>Lavozim</th><th>Amal</th></tr>`;
+    let empH = `<table><tr><th>Ism</th><th>Lavozim</th><th>Amal</th></tr>`;
     data.employees.forEach(e => {
-        eH += `<tr><td>${e.name}</td><td>${e.pos}</td><td><button class="btn-danger" onclick="deleteEmp(${e.id})">X</button></td></tr>`;
+        empH += `<tr><td>${e.name}</td><td>${e.pos}</td><td>
+            <button class="btn-edit" onclick="openEmpModal(${e.id})"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="deleteObj('employees', ${e.id})">X</button>
+        </td></tr>`;
     });
-    document.getElementById("empSettingsTable").innerHTML = eH + `</table>`;
+    document.getElementById("empTable").innerHTML = empH + `</table>`;
 }
 
-/* Actions */
+/* CRUD LOGIC */
+function deleteObj(key, id) { if(confirm("O'chirilsinmi?")) { data[key] = data[key].filter(x => x.id !== id); save(); } }
+
+// MODAL OPENERS
+function openProdModal(id = null) {
+    let p = id ? data.products.find(x=>x.id===id) : {name:'', cat:'', unit:'', price:0};
+    document.getElementById("modalContent").innerHTML = `
+        <h3>${id?'Tahrirlash':'Yangi Mahsulot'}</h3>
+        <input id="m_name" value="${p.name}" placeholder="Nomi">
+        <input id="m_cat" value="${p.cat}" placeholder="Kategoriya">
+        <input id="m_unit" value="${p.unit}" placeholder="Birlik (dona, kg)">
+        <input id="m_price" type="number" value="${p.price}" placeholder="Narxi">
+        <button class="btn-main" onclick="saveProd(${id})">Saqlash</button>
+        <button onclick="closeModal()">Yopish</button>
+    `;
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+function openUserModal(id = null) {
+    let u = id ? data.users.find(x=>x.id===id) : {login:'', pass:'', name:''};
+    document.getElementById("modalContent").innerHTML = `
+        <h3>Foydalanuvchi</h3>
+        <input id="u_login" value="${u.login}" placeholder="Login">
+        <input id="u_pass" value="${u.pass}" placeholder="Parol">
+        <input id="u_name" value="${u.name}" placeholder="Ismi">
+        <button class="btn-main" onclick="saveUser(${id})">Saqlash</button>
+        <button onclick="closeModal()">Yopish</button>
+    `;
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+function openEmpModal(id = null) {
+    let e = id ? data.employees.find(x=>x.id===id) : {name:'', pos:''};
+    document.getElementById("modalContent").innerHTML = `
+        <h3>Xodim ma'lumotlari</h3>
+        <input id="e_name" value="${e.name}" placeholder="F.I.SH">
+        <input id="e_pos" value="${e.pos}" placeholder="Lavozimi">
+        <button class="btn-main" onclick="saveEmp(${id})">Saqlash</button>
+        <button onclick="closeModal()">Yopish</button>
+    `;
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+// SAVERS
+function saveProd(id) {
+    let obj = {id: id || Date.now(), name: document.getElementById("m_name").value, cat: document.getElementById("m_cat").value, unit: document.getElementById("m_unit").value, price: document.getElementById("m_price").value, qty: id ? data.products.find(x=>x.id===id).qty : 0};
+    if(id) data.products = data.products.map(x=>x.id===id?obj:x); else data.products.push(obj);
+    save(); closeModal();
+}
+
+function saveUser(id) {
+    let obj = {id: id || Date.now(), login: document.getElementById("u_login").value, pass: document.getElementById("u_pass").value, name: document.getElementById("u_name").value, role:'sklad', canTabel:true};
+    if(id) data.users = data.users.map(x=>x.id===id?obj:x); else data.users.push(obj);
+    save(); closeModal();
+}
+
+function saveEmp(id) {
+    let obj = {id: id || Date.now(), name: document.getElementById("e_name").value, pos: document.getElementById("e_pos").value};
+    if(id) data.employees = data.employees.map(x=>x.id===id?obj:x); else data.employees.push(obj);
+    save(); closeModal();
+}
+
 function op(pid, type) {
-    let p = data.products.find(x => x.id === pid);
-    let q = parseFloat(prompt(p.name + " (" + (type==='in'?'Kirim':'Chiqim') + "). Miqdorni kiriting:"));
-    if(!q || q <= 0) return;
-    if(type === 'out' && p.qty < q) return alert("Omborda yetarli mahsulot yo'q!");
-    
-    p.qty = type === 'in' ? p.qty + q : p.qty - q;
-    data.transactions.push({id: Date.now(), pId: pid, pName: p.name, userId: user.id, uName: user.name, type, qty: q, date: new Date().toISOString()});
+    let p = data.products.find(x=>x.id===pid);
+    let q = parseFloat(prompt("Miqdor:")); if(!q) return;
+    p.qty = type==='in' ? p.qty + q : p.qty - q;
+    data.transactions.push({pName:p.name, type, qty:q, uName:user.name, date:new Date().toISOString()});
     save();
-}
-
-function openPModal() { document.getElementById("pModal").classList.remove("hidden"); }
-function closePModal() { document.getElementById("pModal").classList.add("hidden"); }
-
-function saveProduct() {
-    let name = document.getElementById("mpName").value;
-    let cat = document.getElementById("mpCat").value;
-    let unit = document.getElementById("mpUnit").value;
-    let price = parseFloat(document.getElementById("mpPrice").value) || 0;
-    if(!name) return;
-    data.products.push({id: Date.now(), name, cat, unit, price, qty: 0});
-    save(); closePModal();
 }
 
 function mark(eid, status) {
-    let today = new Date().toISOString().split('T')[0];
-    data.attendance = data.attendance.filter(a => !(a.empId === eid && a.date === today));
-    data.attendance.push({empId: eid, date: today, status});
+    let date = new Date().toISOString().split('T')[0];
+    data.attendance = data.attendance.filter(a => !(a.empId===eid && a.date===date));
+    data.attendance.push({empId:eid, date, status});
     save();
 }
 
-function addEmployee() {
-    let n = prompt("F.I.SH:");
-    let p = prompt("Lavozimi:");
-    if(n) data.employees.push({id: Date.now(), name: n, pos: p});
-    save();
-}
-
-function addUser() {
-    let l = prompt("Login:");
-    let p = prompt("Parol:");
-    let n = prompt("Ismi:");
-    if(l && p) data.users.push({id: Date.now(), login: l, pass: p, name: n, role: 'sklad', canTabel: false});
-    save();
-}
-
-function toggleTabel(id) { let u = data.users.find(x => x.id === id); u.canTabel = !u.canTabel; save(); }
-function deleteProd(id) { if(confirm("O'chirilsinmi?")) { data.products = data.products.filter(p => p.id !== id); save(); } }
-function deleteUser(id) { if(id===1) return; data.users = data.users.filter(u => u.id !== id); save(); }
-function deleteEmp(id) { data.employees = data.employees.filter(e => e.id !== id); save(); }
+function closeModal() { document.getElementById("modal").classList.add("hidden"); }
 
 function exportToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.products), "Ombor");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.transactions), "Tarix");
-    XLSX.writeFile(wb, "Absolut_ERP_Report.xlsx");
+    XLSX.writeFile(wb, "Report.xlsx");
 }
 
-// Initial Data
-if(data.employees.length === 0) {
-    data.employees = [{id: 101, name: "Aliyev Vali", pos: "Usta"}, {id: 102, name: "Sodiqov J.", pos: "Ishchi"}];
-    save();
-}
+if(data.employees.length===0) { data.employees = [{id:101, name:"Xodim 1", pos:"Ishchi"}]; save(); }
 </script>
 </body>
 </html>
